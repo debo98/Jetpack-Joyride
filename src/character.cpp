@@ -2,6 +2,8 @@
 #include "main.h"
 #include <stdio.h>
 
+float camera_x;
+
 Character::Character(float x, float y, color_t color) {
     this->position = glm::vec3(x, y, 0);
     this->rotation = 0;
@@ -70,9 +72,11 @@ void Character::down() {
 
 void Character::left(int magnetdir) {
     if(magnetdir == 0){
-        speed_x = 0.1;
-        this->position.x -= speed_x;
-        speed_x = 0;
+        if(this->position.x >= (camera_x - 3.7)){
+            speed_x = 0.1;
+            this->position.x -= speed_x;
+            speed_x = 0;
+        }
     }
 }
 
@@ -80,6 +84,9 @@ void Character::right(int magnetdir) {
     if(magnetdir == 0){
         speed_x = 0.1;
         this->position.x += speed_x;
+        // Change where the camera looks when character moves forward
+        if(this->position.x >= camera_x)
+            camera_x += speed_x; 
         speed_x = 0;
     }
 }

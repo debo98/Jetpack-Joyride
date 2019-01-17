@@ -31,9 +31,9 @@ void draw() {
     glUseProgram (programID);
 
     // Eye - Location of camera. Don't change unless you are sure!!
-    glm::vec3 eye (0, 0, 1);
+    glm::vec3 eye (camera_x, 0, 1);
     // Target - Where is the camera looking at.  Don't change unless you are sure!!
-    glm::vec3 target (0, 0, 0);
+    glm::vec3 target (camera_x, 0, 0);
     // Up - Up vector defines tilt of camera.  Don't change unless you are sure!!
     glm::vec3 up (0, 1, 0);
 
@@ -67,12 +67,6 @@ void tick_input(GLFWwindow *window) {
         character.up();
     else
         character.down();
-}
-
-void tick_elements() {
-    // character.up();
-    // camera_rotation_angle += 1;
-    //;
 }
 
 /* Initialize the OpenGL rendering properties */
@@ -125,8 +119,11 @@ int main(int argc, char **argv) {
             // Swap Frame Buffer in double buffering
             glfwSwapBuffers(window);
 
-            tick_elements();
             tick_input(window);
+            
+            // Changing background as the character moves forward
+            glm::vec3 eye (camera_x, 0, 1);
+            glm::vec3 target (camera_x, 0, 0);
         }
 
         // Poll for Keyboard and mouse events
@@ -147,4 +144,8 @@ void reset_screen() {
     float left   = screen_center_x - 4 / screen_zoom;
     float right  = screen_center_x + 4 / screen_zoom;
     Matrices.projection = glm::ortho(left, right, bottom, top, 0.1f, 500.0f);
+}
+
+void game_over() {
+    quit(window);
 }
