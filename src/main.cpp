@@ -1,6 +1,7 @@
 #include "main.h"
 #include "timer.h"
 #include "character.h"
+#include "coins.h"
 #include <stdio.h>
 
 using namespace std;
@@ -14,6 +15,9 @@ GLFWwindow *window;
 **************************/
 
 Character character;
+#define number_of_coins 300
+#define length_of_game 1000
+Coins coins[number_of_coins];
 
 float screen_zoom = 1, screen_center_x = 0, screen_center_y = 0;
 float camera_rotation_angle = 0;
@@ -53,6 +57,9 @@ void draw() {
 
     // Scene render
     character.draw(VP);
+    for (int i = 0; i < number_of_coins; i++) {
+        coins[i].draw(VP);
+    }
 }
 
 void tick_input(GLFWwindow *window) {
@@ -75,7 +82,10 @@ void initGL(GLFWwindow *window, int width, int height) {
     /* Objects should be created before any other gl function and shaders */
     // Create the models
 
+    // Generate Barry Steakfries
     character = Character(-3, -3, COLOR_RED);
+    
+    generate_coins();
 
     // Create and compile our GLSL program from the shaders
     programID = LoadShaders("Sample_GL.vert", "Sample_GL.frag");
@@ -124,6 +134,7 @@ int main(int argc, char **argv) {
             // Changing background as the character moves forward
             glm::vec3 eye (camera_x, 0, 1);
             glm::vec3 target (camera_x, 0, 0);
+            printf("%f\n", camera_x);
         }
 
         // Poll for Keyboard and mouse events
@@ -144,6 +155,12 @@ void reset_screen() {
     float left   = screen_center_x - 4 / screen_zoom;
     float right  = screen_center_x + 4 / screen_zoom;
     Matrices.projection = glm::ortho(left, right, bottom, top, 0.1f, 500.0f);
+}
+
+void generate_coins() {
+    for (int i = 0; i < number_of_coins; i++) {
+        coins[i] = Coins((rand()%(10*length_of_game))/10.0 + 4, (rand()%60)/10.0 - 3, COLOR_YELLOW);
+    }
 }
 
 void game_over() {
