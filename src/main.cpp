@@ -2,6 +2,7 @@
 #include "timer.h"
 #include "character.h"
 #include "coins.h"
+#include "bg.h"
 #include <stdio.h>
 
 using namespace std;
@@ -15,6 +16,7 @@ GLFWwindow *window;
 **************************/
 
 Character character;
+Bg bg_floor, bg_roof;
 #define number_of_coins 300
 #define length_of_game 1000
 Coins coins[number_of_coins];
@@ -57,6 +59,8 @@ void draw() {
 
     // Scene render
     character.draw(VP);
+    bg_floor.draw(VP);
+    bg_roof.draw(VP);
     for (int i = 0; i < number_of_coins; i++) {
         coins[i].draw(VP);
     }
@@ -84,6 +88,8 @@ void initGL(GLFWwindow *window, int width, int height) {
 
     // Generate Barry Steakfries
     character = Character(-3, -3, COLOR_RED);
+    bg_floor = Bg(0, 0, COLOR_GREEN);
+    bg_roof = Bg(0, 13.6, COLOR_GREEN);
     
     generate_coins();
 
