@@ -24,7 +24,7 @@ Character::Character(float x, float y, color_t color) {
     int n = 100;
     GLfloat vertex_buffer_data_head[9*n];
     for(int i=0; i<9*n; i+=9){
-        vertex_buffer_data_head[i] = (float)0.2*cos(((i/9))*2*3.14159265/n);
+        vertex_buffer_data_head[i]   = (float)0.2*cos(((i/9))*2*3.14159265/n);
         vertex_buffer_data_head[i+1] = (float)0.2*sin(((i/9))*2*3.14159265/n);
         vertex_buffer_data_head[i+2] = 0.0f;
         vertex_buffer_data_head[i+3] = (float)0.2*cos(((i/9)+1)*2*3.14159265/n);

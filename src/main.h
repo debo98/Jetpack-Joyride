@@ -79,13 +79,15 @@ extern float camera_x;
 extern float default_speed_x, default_speed_y;
 void reset_screen();
 
-void generate_coins(); 
+void generate_coins();
+void generate_enemy1(); 
 
 // ---- Colors ----
 extern const color_t COLOR_RED;
 extern const color_t COLOR_GREEN;
 extern const color_t COLOR_BLACK;
 extern const color_t COLOR_YELLOW;
+extern const color_t COLOR_ORANGE;
 extern const color_t COLOR_BACKGROUND;
 
 #endif

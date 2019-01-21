@@ -14,8 +14,7 @@ class Coins {
         void set_position(float x, float y);
 
     private:
-        VAO *object_head;
-        VAO *object_body;
+        VAO *object;
 };
 
 #endif // COINS_H

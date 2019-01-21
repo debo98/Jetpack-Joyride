@@ -2,8 +2,6 @@
 #include "main.h"
 #include <stdio.h>
 
-// float camera_x;
-
 Coins::Coins(float x, float y, color_t color) {
     this->position = glm::vec3(x, y, 0);
     this->rotation = 0;
@@ -11,7 +9,7 @@ Coins::Coins(float x, float y, color_t color) {
     int n = 100;
     GLfloat vertex_buffer_data_coin[9*n];
     for(int i=0; i<9*n; i+=9){
-        vertex_buffer_data_coin[i] = (float)0.1*cos(((i/9))*2*3.14159265/n);
+        vertex_buffer_data_coin[i]   = (float)0.1*cos(((i/9))*2*3.14159265/n);
         vertex_buffer_data_coin[i+1] = (float)0.1*sin(((i/9))*2*3.14159265/n);
         vertex_buffer_data_coin[i+2] = 0.0f;
         vertex_buffer_data_coin[i+3] = (float)0.1*cos(((i/9)+1)*2*3.14159265/n);
@@ -22,7 +20,7 @@ Coins::Coins(float x, float y, color_t color) {
         vertex_buffer_data_coin[i+8] = 0.0f;
     }
 
-    this->object_head = create3DObject(GL_TRIANGLES, n*3, vertex_buffer_data_coin, color, GL_FILL);
+    this->object = create3DObject(GL_TRIANGLES, n*3, vertex_buffer_data_coin, color, GL_FILL);
 }
 
 void Coins::draw(glm::mat4 VP) {
@@ -34,8 +32,7 @@ void Coins::draw(glm::mat4 VP) {
     Matrices.model *= (translate * rotate);
     glm::mat4 MVP = VP * Matrices.model;
     glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
-    draw3DObject(this->object_body);
-    draw3DObject(this->object_head);
+    draw3DObject(this->object);
 }
 
 void Coins::set_position(float x, float y) {

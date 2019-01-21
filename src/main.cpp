@@ -3,6 +3,7 @@
 #include "character.h"
 #include "coins.h"
 #include "bg.h"
+#include "enemy1.h"
 #include <stdio.h>
 
 using namespace std;
@@ -20,6 +21,8 @@ Bg bg_floor, bg_roof;
 #define number_of_coins 300
 #define length_of_game 1000
 Coins coins[number_of_coins];
+#define number_of_enemy1 100
+Enemy1 enemy1[number_of_enemy1];
 
 float screen_zoom = 1, screen_center_x = 0, screen_center_y = 0;
 float camera_rotation_angle = 0;
@@ -64,6 +67,9 @@ void draw() {
     for (int i = 0; i < number_of_coins; i++) {
         coins[i].draw(VP);
     }
+    for (int i = 0; i < number_of_enemy1; i++) {
+        enemy1[i].draw(VP);
+    }
 }
 
 void tick_input(GLFWwindow *window) {
@@ -92,6 +98,7 @@ void initGL(GLFWwindow *window, int width, int height) {
     bg_roof = Bg(0, 13.6, COLOR_GREEN);
     
     generate_coins();
+    generate_enemy1();
 
     // Create and compile our GLSL program from the shaders
     programID = LoadShaders("Sample_GL.vert", "Sample_GL.frag");
@@ -166,6 +173,12 @@ void reset_screen() {
 void generate_coins() {
     for (int i = 0; i < number_of_coins; i++) {
         coins[i] = Coins((rand()%(10*length_of_game))/10.0 + 4, (rand()%60)/10.0 - 3, COLOR_YELLOW);
+    }
+}
+
+void generate_enemy1() {
+    for (int i = 0; i < number_of_enemy1; i++) {
+        enemy1[i] = Enemy1((rand()%(10*length_of_game))/10.0 + 4, (rand()%60)/10.0 - 3, COLOR_ORANGE);
     }
 }
 
