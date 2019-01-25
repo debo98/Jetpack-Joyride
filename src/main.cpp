@@ -172,7 +172,8 @@ int main(int argc, char **argv) {
             box_character.height = 1.0f;
 
             detect_collision_with_coins();
-            // detect_collision_with_enemies();
+            detect_collision_with_enemy1();
+            detect_collision_with_enemy2();
 
         }
 
@@ -250,7 +251,6 @@ void generate_enemy1() {
 void generate_enemy2() {
     for (int i = 0; i < number_of_enemy2; i++) {
         enemy2[i] = Enemy2 ((rand()%(10*length_of_game - 200))/10.0 + 4, (rand()%65)/10.0 - 3.5, COLOR_DARKORANGE);
-        // enemy2[i] = Enemy2(5, 0, COLOR_DARKORANGE);
     }
 }
 
@@ -269,6 +269,38 @@ void detect_collision_with_coins() {
             coins[i].position.y = -5.0f;
         }
     }
+}
+
+// Collision with enemy 1
+void detect_collision_with_enemy1() {
+    for (int i = 0; i < number_of_enemy1; i++) {
+        box_object.x = enemy1[i].position.x;
+        box_object.y = enemy1[i].position.y - 0.05f;
+        box_object.width = 1.0f;
+        box_object.height = 0.1f;
+        if(detect_collision(box_character, box_object, enemy1[i].rotation)){
+            lose_life();
+        }
+    }
+}
+
+// Collision with enemy 2
+void detect_collision_with_enemy2() {
+    for (int i = 0; i < number_of_enemy2; i++) {
+        box_object.x = enemy2[i].position.x;
+        box_object.y = enemy2[i].position.y - 0.05f;
+        box_object.width = 10.0f;
+        box_object.height = 0.3f;
+        if(detect_collision(box_character, box_object, 0)){
+            lose_life();
+        }
+    }
+}
+
+void lose_life(){
+    character.position.x = -3;
+    character.position.y = -3;
+    camera_x = 0;
 }
 
 void game_over() {

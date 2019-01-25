@@ -85,7 +85,11 @@ void generate_enemy1();
 void generate_enemy2();
 
 void detect_collision_with_coins();
-void detect_collision_with_enemies();
+void detect_collision_with_enemy1();
+void detect_collision_with_enemy2();
+
+void lose_life();
+void game_over();
 
 // ---- Colors ----
 extern const color_t COLOR_RED;
