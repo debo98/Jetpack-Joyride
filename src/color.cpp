@@ -5,4 +5,5 @@ const color_t COLOR_GREEN = { 135, 211, 124 };
 const color_t COLOR_BLACK = { 52, 73, 94 };
 const color_t COLOR_YELLOW = { 255, 255, 0 };
 const color_t COLOR_ORANGE = { 255, 165, 0 };
+const color_t COLOR_DARKORANGE = { 255, 42, 4 };
 const color_t COLOR_BACKGROUND = { 242, 241, 239 };

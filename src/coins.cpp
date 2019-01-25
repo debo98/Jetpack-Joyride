@@ -5,6 +5,7 @@
 Coins::Coins(float x, float y, color_t color) {
     this->position = glm::vec3(x, y, 0);
     this->rotation = 0;
+    this->taken = 0;
     
     int n = 100;
     GLfloat vertex_buffer_data_coin[9*n];

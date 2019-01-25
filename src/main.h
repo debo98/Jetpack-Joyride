@@ -72,7 +72,8 @@ struct bounding_box_t {
     float height;
 };
 
-bool detect_collision(bounding_box_t a, bounding_box_t b);
+bool detect_collision(bounding_box_t a, bounding_box_t b, float theta);
+bool opposite_sides(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4);
 
 extern float screen_zoom, screen_center_x, screen_center_y;
 extern float camera_x;
@@ -81,6 +82,10 @@ void reset_screen();
 
 void generate_coins();
 void generate_enemy1(); 
+void generate_enemy2();
+
+void detect_collision_with_coins();
+void detect_collision_with_enemies();
 
 // ---- Colors ----
 extern const color_t COLOR_RED;
@@ -88,6 +93,7 @@ extern const color_t COLOR_GREEN;
 extern const color_t COLOR_BLACK;
 extern const color_t COLOR_YELLOW;
 extern const color_t COLOR_ORANGE;
+extern const color_t COLOR_DARKORANGE;
 extern const color_t COLOR_BACKGROUND;
 
 #endif

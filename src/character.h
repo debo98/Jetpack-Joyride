@@ -16,9 +16,12 @@ class Character {
         void down();
         void left(int magnetdir);
         void right(int magnetdir);
+        void update_score();
         double speed_x;
         double speed_y;
         double g;
+        int score;
+        int coins_collected;
 
     private:
         VAO *object_head;

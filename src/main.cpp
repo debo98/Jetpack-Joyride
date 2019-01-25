@@ -4,6 +4,7 @@
 #include "coins.h"
 #include "bg.h"
 #include "enemy1.h"
+#include "enemy2.h"
 #include <stdio.h>
 
 using namespace std;
@@ -23,6 +24,10 @@ Bg bg_floor, bg_roof;
 Coins coins[number_of_coins];
 #define number_of_enemy1 100
 Enemy1 enemy1[number_of_enemy1];
+#define number_of_enemy2 20
+Enemy2 enemy2[number_of_enemy2];
+
+bounding_box_t box_character, box_object;
 
 float screen_zoom = 1, screen_center_x = 0, screen_center_y = 0;
 float camera_rotation_angle = 0;
@@ -65,10 +70,15 @@ void draw() {
     bg_floor.draw(VP);
     bg_roof.draw(VP);
     for (int i = 0; i < number_of_coins; i++) {
-        coins[i].draw(VP);
+        if(!coins[i].taken){
+            coins[i].draw(VP); 
+        }
     }
     for (int i = 0; i < number_of_enemy1; i++) {
         enemy1[i].draw(VP);
+    }
+    for (int i = 0; i < number_of_enemy2; i++) {
+        enemy2[i].draw(VP);
     }
 }
 
@@ -99,6 +109,7 @@ void initGL(GLFWwindow *window, int width, int height) {
     
     generate_coins();
     generate_enemy1();
+    generate_enemy2();
 
     // Create and compile our GLSL program from the shaders
     programID = LoadShaders("Sample_GL.vert", "Sample_GL.frag");
@@ -123,6 +134,7 @@ void initGL(GLFWwindow *window, int width, int height) {
 
 
 int main(int argc, char **argv) {
+    // printf("%d\n", opposite_sides(0, 0, 2, 0, -1, -0.1, -1, -1));
     srand(time(0));
     int width  = 600;
     int height = 600;
@@ -132,6 +144,7 @@ int main(int argc, char **argv) {
     initGL (window, width, height);
 
     /* Draw in loop */
+    /* Game Loop */
     while (!glfwWindowShouldClose(window)) {
         // Process timers
 
@@ -147,7 +160,20 @@ int main(int argc, char **argv) {
             // Changing background as the character moves forward
             glm::vec3 eye (camera_x, 0, 1);
             glm::vec3 target (camera_x, 0, 0);
-            printf("%f\n", camera_x);
+            // printf("%f\n", camera_x);
+
+            for (int i = 0; i < number_of_enemy2; i++) {
+                enemy2[i].move();
+            }
+
+            box_character.x = character.position.x - 0.2f;
+            box_character.y = character.position.y - 0.8f;
+            box_character.width = 0.4f;
+            box_character.height = 1.0f;
+
+            detect_collision_with_coins();
+            // detect_collision_with_enemies();
+
         }
 
         // Poll for Keyboard and mouse events
@@ -157,9 +183,43 @@ int main(int argc, char **argv) {
     quit(window);
 }
 
-bool detect_collision(bounding_box_t a, bounding_box_t b) {
-    return (abs(a.x - b.x) * 2 < (a.width + b.width)) &&
-           (abs(a.y - b.y) * 2 < (a.height + b.height));
+bool opposite_sides(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4) {
+    float temp1, temp2, temp3, temp4;
+    temp1 = (y2-y1)*(x3-x2) - (x2-x1)*(y3-y2);
+    if(temp1 > 0)
+        temp1 = 1;
+    else if(temp1 < 0)
+        temp1 = -1;
+    temp2 = (y2-y1)*(x4-x2) - (x2-x1)*(y4-y2);
+    if(temp2 > 0)
+        temp2 = 1;
+    else if(temp2 < 0)
+        temp2 = -1;
+    temp3 = (y4-y3)*(x1-x4) - (x4-x3)*(y1-y4);
+    if(temp3 > 0)
+        temp3 = 1;
+    else if(temp3 < 0)
+        temp3 = -1;
+    temp4 = (y4-y3)*(x2-x4) - (x4-x3)*(y2-y4);
+    if(temp4 > 0)
+        temp4 = 1;
+    else if(temp4 < 0)
+        temp4 = -1;
+    return temp1!=temp2 && temp3!=temp4;
+}
+
+// a is character, b is object, theta is the rotation angle of object
+bool detect_collision(bounding_box_t a, bounding_box_t b, float theta) {
+    // return (abs(a.x - b.x) * 2 < (a.width + b.width)) &&
+    //        (abs(a.y - b.y) * 2 < (a.height + b.height));
+    return  opposite_sides(a.x, a.y, a.x+a.width, a.y, b.x, b.y, b.x+b.width*cos(theta), b.y+b.width*sin(theta)) ||
+            opposite_sides(a.x, a.y, a.x+a.width, a.y, b.x-b.height*sin(theta), b.y+b.height*cos(theta), b.x-b.height*sin(theta)+b.width*cos(theta), b.y+b.height*cos(theta)+b.width*sin(theta)) ||
+            opposite_sides(a.x, a.y+a.height, a.x+a.width, a.y+a.height, b.x, b.y, b.x+b.width*cos(theta), b.y+b.width*sin(theta)) ||
+            opposite_sides(a.x, a.y+a.height, a.x+a.width, a.y+a.height, b.x-b.height*sin(theta), b.y+b.height*cos(theta), b.x-b.height*sin(theta)+b.width*cos(theta), b.y+b.height*cos(theta)+b.width*sin(theta)) ||
+            opposite_sides(a.x, a.y, a.x, a.y+a.height, b.x, b.y, b.x+b.width*cos(theta), b.y+b.width*sin(theta)) ||
+            opposite_sides(a.x, a.y, a.x, a.y+a.height, b.x-b.height*sin(theta), b.y+b.height*cos(theta), b.x-b.height*sin(theta)+b.width*cos(theta), b.y+b.height*cos(theta)+b.width*sin(theta)) ||
+            opposite_sides(a.x, a.y, a.x+a.width, a.y+a.height, b.x, b.y, b.x+b.width*cos(theta), b.y+b.width*sin(theta)) ||
+            opposite_sides(a.x, a.y, a.x+a.width, a.y+a.height, b.x-b.height*sin(theta), b.y+b.height*cos(theta), b.x-b.height*sin(theta)+b.width*cos(theta), b.y+b.height*cos(theta)+b.width*sin(theta));
 }
 
 void reset_screen() {
@@ -170,15 +230,44 @@ void reset_screen() {
     Matrices.projection = glm::ortho(left, right, bottom, top, 0.1f, 500.0f);
 }
 
+
+/* Initialising objects in game */
+// Level 1
 void generate_coins() {
     for (int i = 0; i < number_of_coins; i++) {
-        coins[i] = Coins((rand()%(10*length_of_game))/10.0 + 4, (rand()%60)/10.0 - 3, COLOR_YELLOW);
+        coins[i] = Coins ((rand()%(10*length_of_game))/10.0 + 4, (rand()%60)/10.0 - 3, COLOR_YELLOW);
     }
 }
 
+// Level 2
 void generate_enemy1() {
     for (int i = 0; i < number_of_enemy1; i++) {
-        enemy1[i] = Enemy1((rand()%(10*length_of_game))/10.0 + 4, (rand()%60)/10.0 - 3, COLOR_ORANGE);
+        enemy1[i] = Enemy1 ((rand()%(10*length_of_game - 100))/10.0 + 4, (rand()%60)/10.0 - 3.5, COLOR_ORANGE);
+    }
+}
+
+// Level 3
+void generate_enemy2() {
+    for (int i = 0; i < number_of_enemy2; i++) {
+        enemy2[i] = Enemy2 ((rand()%(10*length_of_game - 200))/10.0 + 4, (rand()%65)/10.0 - 3.5, COLOR_DARKORANGE);
+        // enemy2[i] = Enemy2(5, 0, COLOR_DARKORANGE);
+    }
+}
+
+
+/* Collisions */
+// Collecting coins
+void detect_collision_with_coins() {
+    for (int i = 0; i < number_of_coins; i++) {
+        box_object.x = coins[i].position.x - 0.1f;
+        box_object.y = coins[i].position.y - 0.1f;
+        box_object.width = 0.2f;
+        box_object.height = 0.2f;
+        if(detect_collision(box_character, box_object, 0)){
+            character.coins_collected++;
+            coins[i].position.x = -5.0f;
+            coins[i].position.y = -5.0f;
+        }
     }
 }
 

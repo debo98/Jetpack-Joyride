@@ -3,11 +3,13 @@
 #include <stdio.h>
 
 float camera_x;
-float default_speed_x = 0.1, default_speed_y = 0.1;
+float default_speed_x = 0.1, default_speed_y = 0.03;
 
 Character::Character(float x, float y, color_t color) {
     this->position = glm::vec3(x, y, 0);
     this->rotation = 0;
+    this->score = 0;
+    this->coins_collected = 0;
     g = 0.003;
     
     // Our vertices. Three consecutive floats give a 3D vertex; Three consecutive vertices give a triangle.
@@ -90,4 +92,8 @@ void Character::right(int magnetdir) {
             camera_x += speed_x; 
         speed_x = 0;
     }
+}
+
+void Character::update_score() {
+    this->score = (10 * camera_x) + (5 * this->coins_collected);
 }

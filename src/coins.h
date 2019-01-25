@@ -10,6 +10,7 @@ class Coins {
         Coins(float x, float y, color_t color);
         glm::vec3 position;
         float rotation;
+        int taken;
         void draw(glm::mat4 VP);
         void set_position(float x, float y);
 
