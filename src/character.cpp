@@ -5,7 +5,7 @@
 float camera_x;
 float default_speed_x = 0.1, default_speed_y = 0.03;
 
-Character::Character(float x, float y, color_t color) {
+Character::Character(float x, float y, color_t color1, color_t color2) {
     this->position = glm::vec3(x, y, 0);
     this->rotation = 0;
     this->score = 0;
@@ -41,11 +41,13 @@ Character::Character(float x, float y, color_t color) {
         vertex_buffer_data_head[i+8] = 0.0f;
     }
 
-    this->object_body = create3DObject(GL_TRIANGLES, 2*3, vertex_buffer_data_body, color, GL_FILL);
-    this->object_head = create3DObject(GL_TRIANGLES, n*3, vertex_buffer_data_head, color, GL_FILL);
+    this->object_body1 = create3DObject(GL_TRIANGLES, 2*3, vertex_buffer_data_body, color1, GL_FILL);
+    this->object_head1 = create3DObject(GL_TRIANGLES, n*3, vertex_buffer_data_head, color1, GL_FILL);
+    this->object_body2 = create3DObject(GL_TRIANGLES, 2*3, vertex_buffer_data_body, color2, GL_FILL);
+    this->object_head2 = create3DObject(GL_TRIANGLES, n*3, vertex_buffer_data_head, color2, GL_FILL);
 }
 
-void Character::draw(glm::mat4 VP) {
+void Character::draw(glm::mat4 VP, int shield_on) {
     Matrices.model = glm::mat4(1.0f);
     glm::mat4 translate = glm::translate (this->position);    // glTranslatef
     glm::mat4 rotate    = glm::rotate((float) (this->rotation * M_PI / 180.0f), glm::vec3(1, 0, 0));
@@ -54,8 +56,14 @@ void Character::draw(glm::mat4 VP) {
     Matrices.model *= (translate * rotate);
     glm::mat4 MVP = VP * Matrices.model;
     glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
-    draw3DObject(this->object_body);
-    draw3DObject(this->object_head);
+    if(shield_on){
+        draw3DObject(this->object_body2);
+        draw3DObject(this->object_head2);
+    }
+    else{
+        draw3DObject(this->object_body1);
+        draw3DObject(this->object_head1);
+    }
 }
 
 void Character::set_position(float x, float y) {

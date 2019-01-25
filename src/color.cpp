@@ -1,5 +1,6 @@
 #include "main.h"
 
+const color_t COLOR_FULLRED = { 2550, 0, 0 };
 const color_t COLOR_RED = { 236, 100, 75 };
 const color_t COLOR_HEARTRED = { 227, 27, 35 };
 const color_t COLOR_GREEN = { 135, 211, 124 };

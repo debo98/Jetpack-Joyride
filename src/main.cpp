@@ -79,7 +79,7 @@ void draw() {
     glm::mat4 MVP;  // MVP = Projection * View * Model
 
     // Scene render
-    character.draw(VP);
+    character.draw(VP, character.ispoweredup);
     propulsion.draw(VP);
     bg_floor.draw(VP);
     bg_roof.draw(VP);
@@ -134,7 +134,7 @@ void initGL(GLFWwindow *window, int width, int height) {
     // Create the models
 
     // Generate Barry Steakfries
-    character = Character(-3, -3, COLOR_RED);
+    character = Character(-3, -3, COLOR_RED, COLOR_FULLRED);
     propulsion = Propulsion(-500.0f, -500.0f, COLOR_GOLD);
     bg_floor = Bg(0, 0, COLOR_GREEN);
     bg_roof = Bg(0, 13.6, COLOR_GREEN);

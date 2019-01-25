@@ -99,6 +99,7 @@ void lose_life();
 void game_over();
 
 // ---- Colors ----
+extern const color_t COLOR_FULLRED;
 extern const color_t COLOR_RED;
 extern const color_t COLOR_HEARTRED;
 extern const color_t COLOR_GREEN;
