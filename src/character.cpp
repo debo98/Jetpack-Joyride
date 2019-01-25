@@ -9,8 +9,10 @@ Character::Character(float x, float y, color_t color) {
     this->position = glm::vec3(x, y, 0);
     this->rotation = 0;
     this->score = 0;
+    this->distance_travelled = 0;
     this->coins_collected = 0;
     this->specialcoins_collected = 0;
+    this->ispoweredup = 0;
     this->lives = 3;
     g = 0.003;
     
@@ -90,12 +92,14 @@ void Character::right(int magnetdir) {
         speed_x = default_speed_x;
         this->position.x += speed_x;
         // Change where the camera looks when character moves forward
-        if(this->position.x >= camera_x)
+        if(this->position.x >= camera_x){
             camera_x += speed_x; 
+            this->distance_travelled += speed_x;
+        }
         speed_x = 0;
     }
 }
 
 void Character::update_score() {
-    this->score = (10 * camera_x) + (5 * this->coins_collected) + (50 * this->specialcoins_collected);
+    this->score = (10 * this->distance_travelled) + (5 * this->coins_collected) + (50 * this->specialcoins_collected);
 }

@@ -84,11 +84,15 @@ void generate_coins();
 void generate_enemy1(); 
 void generate_enemy2();
 void generate_specialcoins();
+void generate_extralives();
+void generate_shields();
 
 void detect_collision_with_coins();
 void detect_collision_with_enemy1();
 void detect_collision_with_enemy2();
 void detect_collision_with_specialcoins();
+void detect_collision_with_extralives();
+void detect_collision_with_shields();
 
 
 void lose_life();
@@ -96,11 +100,13 @@ void game_over();
 
 // ---- Colors ----
 extern const color_t COLOR_RED;
+extern const color_t COLOR_HEARTRED;
 extern const color_t COLOR_GREEN;
 extern const color_t COLOR_BLACK;
 extern const color_t COLOR_YELLOW;
 extern const color_t COLOR_ORANGE;
 extern const color_t COLOR_DARKORANGE;
+extern const color_t COLOR_GOLD;
 extern const color_t COLOR_BACKGROUND;
 
 #endif

@@ -23,17 +23,13 @@ using namespace std;
 /* Prefered for Keyboard events */
 void keyboard(GLFWwindow *window, int key, int scancode, int action, int mods) {
     // Function is called first on GLFW_PRESS.
-
     if (action == GLFW_RELEASE) {
         switch (key) {
         case GLFW_KEY_SPACE:
-            // quit(window);
             break;
         case GLFW_KEY_P:
-            // triangle_rot_status = !triangle_rot_status;
             break;
         case GLFW_KEY_X:
-            // do something ..
             break;
         default:
             break;
@@ -66,22 +62,21 @@ void mouseButton(GLFWwindow *window, int button, int action, int mods) {
     switch (button) {
     case GLFW_MOUSE_BUTTON_LEFT:
         if (action == GLFW_PRESS) {
-            // Do something
             return;
         } else if (action == GLFW_RELEASE) {
-            // Do something
         }
         break;
-    // case GLFW_MOUSE_BUTTON_RIGHT:
-    // if (action == GLFW_RELEASE) {
-    // rectangle_rot_dir *= -1;
-    // }
-    // break;
     default:
         break;
     }
 }
 
 void scroll_callback(GLFWwindow *window, double xoffset, double yoffset) {
-    // Do something
+    screen_zoom += yoffset/10;
+    if(screen_zoom <= 0.05){
+        screen_zoom = 0.05;
+    }
+    else if(screen_zoom >= 50){
+        screen_zoom = 50;
+    }
 }

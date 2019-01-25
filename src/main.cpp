@@ -6,6 +6,9 @@
 #include "enemy1.h"
 #include "enemy2.h"
 #include "specialcoins.h"
+#include "extralives.h"
+#include "shield.h"
+#include "propulsion.h"
 #include <stdio.h>
 
 using namespace std;
@@ -19,6 +22,7 @@ GLFWwindow *window;
 **************************/
 
 Character character;
+Propulsion propulsion;
 Bg bg_floor, bg_roof;
 #define number_of_coins 300
 #define length_of_game 1000
@@ -27,13 +31,19 @@ Coins coins[number_of_coins];
 Enemy1 enemy1[number_of_enemy1];
 #define number_of_enemy2 20
 Enemy2 enemy2[number_of_enemy2];
-#define number_of_specialcoins 400
+#define number_of_specialcoins 4
 Specialcoins specialcoins[number_of_specialcoins];
+#define number_of_extralives 4
+Extralives extralives[number_of_extralives];
+#define number_of_shields 4
+Shield shield[number_of_shields];
 
 bounding_box_t box_character, box_object;
 
 float screen_zoom = 1, screen_center_x = 0, screen_center_y = 0;
 float camera_rotation_angle = 0;
+
+int powerdown_at;
 
 Timer t60(1.0 / 60);
 
@@ -70,6 +80,7 @@ void draw() {
 
     // Scene render
     character.draw(VP);
+    propulsion.draw(VP);
     bg_floor.draw(VP);
     bg_roof.draw(VP);
     for (int i = 0; i < number_of_coins; i++) {
@@ -86,9 +97,16 @@ void draw() {
     for (int i = 0; i < number_of_specialcoins; i++) {
         specialcoins[i].draw(VP);
     }
+    for (int i = 0; i < number_of_extralives; i++) {
+        extralives[i].draw(VP);
+    }
+    for (int i = 0; i < number_of_shields; i++) {
+        shield[i].draw(VP);
+    }
 }
 
 void tick_input(GLFWwindow *window) {
+    glfwSetScrollCallback(window, scroll_callback);
     int left  = glfwGetKey(window, GLFW_KEY_LEFT);
     int right = glfwGetKey(window, GLFW_KEY_RIGHT);
     int up = glfwGetKey(window, GLFW_KEY_SPACE);
@@ -96,10 +114,17 @@ void tick_input(GLFWwindow *window) {
         character.left(0);
     if (right)
         character.right(0);
-    if (up)
+    if (up){
         character.up();
-    else
+        propulsion.position.x = character.position.x;
+        propulsion.position.y = character.position.y - 0.8f;
+    }
+    else{
         character.down();
+        propulsion.position.x = -500.0f;
+        propulsion.position.y = -500.0f;
+    }
+    reset_screen();
 }
 
 /* Initialize the OpenGL rendering properties */
@@ -110,6 +135,7 @@ void initGL(GLFWwindow *window, int width, int height) {
 
     // Generate Barry Steakfries
     character = Character(-3, -3, COLOR_RED);
+    propulsion = Propulsion(-500.0f, -500.0f, COLOR_GOLD);
     bg_floor = Bg(0, 0, COLOR_GREEN);
     bg_roof = Bg(0, 13.6, COLOR_GREEN);
     
@@ -117,7 +143,9 @@ void initGL(GLFWwindow *window, int width, int height) {
     generate_enemy1();
     generate_enemy2();
     generate_specialcoins();
-
+    generate_extralives();
+    generate_shields();
+    
     // Create and compile our GLSL program from the shaders
     programID = LoadShaders("Sample_GL.vert", "Sample_GL.frag");
     // Get a handle for our "MVP" uniform
@@ -173,17 +201,31 @@ int main(int argc, char **argv) {
             for (int i = 0; i < number_of_specialcoins; i++) {
                 specialcoins[i].move();
             }
+            for (int i = 0; i < number_of_extralives; i++) {
+                extralives[i].move();
+            }
+            for (int i = 0; i < number_of_shields; i++) {
+                shield[i].move();
+            }
 
             box_character.x = character.position.x - 0.2f;
             box_character.y = character.position.y - 0.8f;
             box_character.width = 0.4f;
             box_character.height = 1.0f;
             character.update_score();
+            if(character.position.x >= powerdown_at){
+                character.ispoweredup = 0;
+            }
 
             detect_collision_with_coins();
             detect_collision_with_enemy1();
             detect_collision_with_enemy2();
             detect_collision_with_specialcoins();
+            detect_collision_with_extralives();
+            detect_collision_with_shields();
+
+            printf("Lives left : %d\n", character.lives);
+            printf("Game Score : %d\n", character.score);
 
         }
 
@@ -268,6 +310,18 @@ void generate_specialcoins() {
     }
 }
 
+void generate_extralives() {
+    for (int i = 0; i < number_of_extralives; i++) {
+        extralives[i] = Extralives ((rand()%(10*length_of_game - 150))/10.0 + 150, (rand()%60)/10.0 - 3, COLOR_HEARTRED);
+    }
+}
+
+void generate_shields() {
+    for (int i = 0; i < number_of_shields; i++) {
+        shield[i] = Shield ((rand()%(10*length_of_game - 150))/10.0 + 150, (rand()%60)/10.0 - 3, COLOR_GREEN);
+    }
+}
+
 
 /* Collisions */
 // Collecting coins
@@ -293,7 +347,9 @@ void detect_collision_with_enemy1() {
         box_object.width = 1.0f;
         box_object.height = 0.1f;
         if(detect_collision(box_character, box_object, enemy1[i].rotation * M_PI / 180.0f)){
-            lose_life();
+            if(!character.ispoweredup){
+                lose_life();
+            }
         }
     }
 }
@@ -306,7 +362,9 @@ void detect_collision_with_enemy2() {
         box_object.width = 10.0f;
         box_object.height = 0.3f;
         if(detect_collision(box_character, box_object, 0)){
-            lose_life();
+            if(!character.ispoweredup){
+                lose_life();
+            }
         }
     }
 }
@@ -326,13 +384,44 @@ void detect_collision_with_specialcoins() {
     }
 }
 
+// Collecting extra life
+void detect_collision_with_extralives() {
+    for (int i = 0; i < number_of_extralives; i++) {
+        box_object.x = extralives[i].position.x - 0.2f;
+        box_object.y = extralives[i].position.y - 0.3f;
+        box_object.width = 0.4f;
+        box_object.height = 0.4f;
+        if(detect_collision(box_character, box_object, 0)){
+            character.lives++;
+            extralives[i].position.x = -500.0f;
+            extralives[i].position.y = -500.0f;
+        }
+    }
+}
+
+// Collecting shield
+void detect_collision_with_shields() {
+    for (int i = 0; i < number_of_shields; i++) {
+        box_object.x = shield[i].position.x - 0.2f;
+        box_object.y = shield[i].position.y;
+        box_object.width = 0.4f;
+        box_object.height = 0.4f;
+        if(detect_collision(box_character, box_object, 0)){
+            powerdown_at = shield[i].position.x + 50.0f;
+            character.ispoweredup = 1;
+            // character.color = COLOR_GOLD;
+            shield[i].position.x = -500.0f;
+            shield[i].position.y = -500.0f;
+        }
+    }
+}
+
 void lose_life(){
     if(character.lives){
         character.lives--;
         character.position.x = -3;
         character.position.y = -3;
         camera_x = 0;
-        printf("Lives left : %d\n", character.lives);
     }
     else{
         game_over();
@@ -340,6 +429,5 @@ void lose_life(){
 }
 
 void game_over() {
-    printf("Game Score : %d\n", character.score);
     quit(window);
 }

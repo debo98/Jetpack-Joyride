@@ -21,6 +21,8 @@ class Character {
         double speed_y;
         double g;
         int score;
+        float distance_travelled;
+        int ispoweredup;
         int lives;
         int coins_collected;
         int specialcoins_collected;
