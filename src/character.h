@@ -21,6 +21,7 @@ class Character {
         double speed_y;
         double g;
         int score;
+        int lives;
         int coins_collected;
 
     private:

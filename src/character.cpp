@@ -10,6 +10,7 @@ Character::Character(float x, float y, color_t color) {
     this->rotation = 0;
     this->score = 0;
     this->coins_collected = 0;
+    this->lives = 3;
     g = 0.003;
     
     // Our vertices. Three consecutive floats give a 3D vertex; Three consecutive vertices give a triangle.

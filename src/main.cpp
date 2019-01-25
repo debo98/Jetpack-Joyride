@@ -134,7 +134,6 @@ void initGL(GLFWwindow *window, int width, int height) {
 
 
 int main(int argc, char **argv) {
-    // printf("%d\n", opposite_sides(0, 0, 2, 0, -1, -0.1, -1, -1));
     srand(time(0));
     int width  = 600;
     int height = 600;
@@ -146,8 +145,8 @@ int main(int argc, char **argv) {
     /* Draw in loop */
     /* Game Loop */
     while (!glfwWindowShouldClose(window)) {
+    
         // Process timers
-
         if (t60.processTick()) {
             // 60 fps
             // OpenGL Draw commands
@@ -160,7 +159,6 @@ int main(int argc, char **argv) {
             // Changing background as the character moves forward
             glm::vec3 eye (camera_x, 0, 1);
             glm::vec3 target (camera_x, 0, 0);
-            // printf("%f\n", camera_x);
 
             for (int i = 0; i < number_of_enemy2; i++) {
                 enemy2[i].move();
@@ -170,6 +168,7 @@ int main(int argc, char **argv) {
             box_character.y = character.position.y - 0.8f;
             box_character.width = 0.4f;
             box_character.height = 1.0f;
+            character.update_score();
 
             detect_collision_with_coins();
             detect_collision_with_enemy1();
@@ -211,8 +210,6 @@ bool opposite_sides(float x1, float y1, float x2, float y2, float x3, float y3, 
 
 // a is character, b is object, theta is the rotation angle of object
 bool detect_collision(bounding_box_t a, bounding_box_t b, float theta) {
-    // return (abs(a.x - b.x) * 2 < (a.width + b.width)) &&
-    //        (abs(a.y - b.y) * 2 < (a.height + b.height));
     return  opposite_sides(a.x, a.y, a.x+a.width, a.y, b.x, b.y, b.x+b.width*cos(theta), b.y+b.width*sin(theta)) ||
             opposite_sides(a.x, a.y, a.x+a.width, a.y, b.x-b.height*sin(theta), b.y+b.height*cos(theta), b.x-b.height*sin(theta)+b.width*cos(theta), b.y+b.height*cos(theta)+b.width*sin(theta)) ||
             opposite_sides(a.x, a.y+a.height, a.x+a.width, a.y+a.height, b.x, b.y, b.x+b.width*cos(theta), b.y+b.width*sin(theta)) ||
@@ -265,8 +262,8 @@ void detect_collision_with_coins() {
         box_object.height = 0.2f;
         if(detect_collision(box_character, box_object, 0)){
             character.coins_collected++;
-            coins[i].position.x = -5.0f;
-            coins[i].position.y = -5.0f;
+            coins[i].position.x = -500.0f;
+            coins[i].position.y = -500.0f;
         }
     }
 }
@@ -278,7 +275,7 @@ void detect_collision_with_enemy1() {
         box_object.y = enemy1[i].position.y - 0.05f;
         box_object.width = 1.0f;
         box_object.height = 0.1f;
-        if(detect_collision(box_character, box_object, enemy1[i].rotation)){
+        if(detect_collision(box_character, box_object, enemy1[i].rotation * M_PI / 180.0f)){
             lose_life();
         }
     }
@@ -298,11 +295,19 @@ void detect_collision_with_enemy2() {
 }
 
 void lose_life(){
-    character.position.x = -3;
-    character.position.y = -3;
-    camera_x = 0;
+    if(character.lives){
+        character.lives--;
+        character.position.x = -3;
+        character.position.y = -3;
+        camera_x = 0;
+        printf("Lives left : %d\n", character.lives);
+    }
+    else{
+        game_over();
+    }
 }
 
 void game_over() {
+    printf("Game Score : %d\n", character.score);
     quit(window);
 }
