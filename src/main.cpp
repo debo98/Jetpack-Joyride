@@ -5,6 +5,7 @@
 #include "bg.h"
 #include "enemy1.h"
 #include "enemy2.h"
+#include "specialcoins.h"
 #include <stdio.h>
 
 using namespace std;
@@ -26,6 +27,8 @@ Coins coins[number_of_coins];
 Enemy1 enemy1[number_of_enemy1];
 #define number_of_enemy2 20
 Enemy2 enemy2[number_of_enemy2];
+#define number_of_specialcoins 400
+Specialcoins specialcoins[number_of_specialcoins];
 
 bounding_box_t box_character, box_object;
 
@@ -80,6 +83,9 @@ void draw() {
     for (int i = 0; i < number_of_enemy2; i++) {
         enemy2[i].draw(VP);
     }
+    for (int i = 0; i < number_of_specialcoins; i++) {
+        specialcoins[i].draw(VP);
+    }
 }
 
 void tick_input(GLFWwindow *window) {
@@ -110,6 +116,7 @@ void initGL(GLFWwindow *window, int width, int height) {
     generate_coins();
     generate_enemy1();
     generate_enemy2();
+    generate_specialcoins();
 
     // Create and compile our GLSL program from the shaders
     programID = LoadShaders("Sample_GL.vert", "Sample_GL.frag");
@@ -163,6 +170,9 @@ int main(int argc, char **argv) {
             for (int i = 0; i < number_of_enemy2; i++) {
                 enemy2[i].move();
             }
+            for (int i = 0; i < number_of_specialcoins; i++) {
+                specialcoins[i].move();
+            }
 
             box_character.x = character.position.x - 0.2f;
             box_character.y = character.position.y - 0.8f;
@@ -173,6 +183,7 @@ int main(int argc, char **argv) {
             detect_collision_with_coins();
             detect_collision_with_enemy1();
             detect_collision_with_enemy2();
+            detect_collision_with_specialcoins();
 
         }
 
@@ -240,14 +251,20 @@ void generate_coins() {
 // Level 2
 void generate_enemy1() {
     for (int i = 0; i < number_of_enemy1; i++) {
-        enemy1[i] = Enemy1 ((rand()%(10*length_of_game - 100))/10.0 + 4, (rand()%60)/10.0 - 3.5, COLOR_ORANGE);
+        enemy1[i] = Enemy1 ((rand()%(10*length_of_game - 100))/10.0 + 100, (rand()%60)/10.0 - 3.5, COLOR_ORANGE);
     }
 }
 
 // Level 3
 void generate_enemy2() {
     for (int i = 0; i < number_of_enemy2; i++) {
-        enemy2[i] = Enemy2 ((rand()%(10*length_of_game - 200))/10.0 + 4, (rand()%65)/10.0 - 3.5, COLOR_DARKORANGE);
+        enemy2[i] = Enemy2 ((rand()%(10*length_of_game - 200))/10.0 + 200, (rand()%65)/10.0 - 3.5, COLOR_DARKORANGE);
+    }
+}
+
+void generate_specialcoins() {
+    for (int i = 0; i < number_of_specialcoins; i++) {
+        specialcoins[i] = Specialcoins ((rand()%(10*length_of_game - 150))/10.0 + 150, (rand()%60)/10.0 - 3, COLOR_YELLOW);
     }
 }
 
@@ -290,6 +307,21 @@ void detect_collision_with_enemy2() {
         box_object.height = 0.3f;
         if(detect_collision(box_character, box_object, 0)){
             lose_life();
+        }
+    }
+}
+
+// Collecting special coins
+void detect_collision_with_specialcoins() {
+    for (int i = 0; i < number_of_specialcoins; i++) {
+        box_object.x = specialcoins[i].position.x - 0.2f;
+        box_object.y = specialcoins[i].position.y - 0.2f;
+        box_object.width = 0.4f;
+        box_object.height = 0.4f;
+        if(detect_collision(box_character, box_object, 0)){
+            character.specialcoins_collected++;
+            specialcoins[i].position.x = -500.0f;
+            specialcoins[i].position.y = -500.0f;
         }
     }
 }

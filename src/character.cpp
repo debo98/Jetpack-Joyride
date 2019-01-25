@@ -10,6 +10,7 @@ Character::Character(float x, float y, color_t color) {
     this->rotation = 0;
     this->score = 0;
     this->coins_collected = 0;
+    this->specialcoins_collected = 0;
     this->lives = 3;
     g = 0.003;
     
@@ -96,5 +97,5 @@ void Character::right(int magnetdir) {
 }
 
 void Character::update_score() {
-    this->score = (10 * camera_x) + (5 * this->coins_collected);
+    this->score = (10 * camera_x) + (5 * this->coins_collected) + (50 * this->specialcoins_collected);
 }

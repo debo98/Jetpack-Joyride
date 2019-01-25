@@ -83,10 +83,13 @@ void reset_screen();
 void generate_coins();
 void generate_enemy1(); 
 void generate_enemy2();
+void generate_specialcoins();
 
 void detect_collision_with_coins();
 void detect_collision_with_enemy1();
 void detect_collision_with_enemy2();
+void detect_collision_with_specialcoins();
+
 
 void lose_life();
 void game_over();

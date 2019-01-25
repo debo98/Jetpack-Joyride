@@ -101,7 +101,6 @@ void Enemy2::set_position(float x, float y) {
 void Enemy2::move() {
     if(this->position.y < -3.5 || this-> position.y > 3){
         this->speed *= -1;
-        // printf("Position : %f\n", this->position.x);
     }
     this->position.y += this->speed;
 }

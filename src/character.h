@@ -23,6 +23,7 @@ class Character {
         int score;
         int lives;
         int coins_collected;
+        int specialcoins_collected;
 
     private:
         VAO *object_head;
