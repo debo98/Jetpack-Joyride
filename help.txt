@@ -1,0 +1,24 @@
+Welcome to my rendition of the popular game "Jetpack Joyride"!!
+
+How to run the game on Linux - 
+1. Open folder in terminal
+2. Run the following commands-
+2a. cmake CMakeLists.txt
+2b. make
+2c. ./graphics_asgn1
+
+Instructions on how to play the game-
+1. Move left and right with the respective arrow keys(LEFT for moving left and RIGHT for moving right)
+2. Press/hold SPACEBAR to activate jetpack to fly up
+3. On releasing SPACEBAR you will fall under the effect of gravity
+4. Press UP to shoot water balloons that you can use to douse fires
+5. Collect coins as you go for points(Yellow = 1 point, Black = 2 points, Green = 5 points)
+6. Big coins give you 50 points
+7. Killing an enemy gives you 10 points
+8. Armor grants you invincibility for some distance
+9. Collect extra lives as you go for more tries. You start with 3 lives
+10. Avoid the boomerang at all costs since you cant kill it
+11. Wait out the Dragon and dodge its icy-fire balls
+12. Magnets attract you
+
+The Objective of the game is to get as high a score as possible. So RUN FOR FUN!!
