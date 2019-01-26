@@ -8,6 +8,8 @@ float default_speed_x = 0.1, default_speed_y = 0.03;
 Character::Character(float x, float y, color_t color1, color_t color2, color_t color3, color_t color4) {
     this->position = glm::vec3(x, y, 0);
     this->rotation = 0;
+    this->speed_x = 0.1;
+    this->speed_due_to_magnet = 0;
     this->score = 0;
     this->distance_travelled = 0;
     this->coins_collected = 0;
@@ -15,6 +17,7 @@ Character::Character(float x, float y, color_t color1, color_t color2, color_t c
     this->ispoweredup = 0;
     this->lives = 3;
     this->enemieskilled = 0;
+    this->a = 0;
     g = 0.003;
     
     // Our vertices. Three consecutive floats give a 3D vertex; Three consecutive vertices give a triangle.
@@ -106,26 +109,30 @@ void Character::down() {
     }
 }
 
-void Character::left(int magnetdir) {
-    if(magnetdir == 0){
-        if(this->position.x >= (camera_x - 3.7)){
-            speed_x = default_speed_x;
-            this->position.x -= speed_x;
-            speed_x = 0;
-        }
+void Character::left() {
+    if(this->position.x >= (camera_x - 3.7)){
+        this->position.x -= this->speed_x;
     }
 }
 
-void Character::right(int magnetdir) {
-    if(magnetdir == 0){
-        speed_x = default_speed_x;
-        this->position.x += speed_x;
-        // Change where the camera looks when character moves forward
-        if(this->position.x >= camera_x){
-            camera_x += speed_x; 
-            this->distance_travelled += speed_x;
-        }
-        speed_x = 0;
+void Character::right() {
+    this->position.x += this->speed_x;
+    // Change where the camera looks when character moves forward
+    if(this->position.x >= camera_x){
+        camera_x += this->speed_x; 
+        this->distance_travelled += this->speed_x;
+    }
+}
+
+void Character::magnet_pull(){
+    if(this->a != 0){
+        this->speed_due_to_magnet += a;
+    }
+    else{
+        this->speed_due_to_magnet = 0;
+    }
+    if(this->position.x >= camera_x - 3.7){
+        this->position -= this->speed_due_to_magnet;
     }
 }
 

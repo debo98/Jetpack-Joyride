@@ -14,12 +14,15 @@ class Character {
         void set_position(float x, float y);
         void up();
         void down();
-        void left(int magnetdir);
-        void right(int magnetdir);
+        void left();
+        void right();
+        void magnet_pull();
         void update_score();
         double speed_x;
         double speed_y;
+        double speed_due_to_magnet;
         double g;
+        double a;
         int score;
         float distance_travelled;
         int ispoweredup;

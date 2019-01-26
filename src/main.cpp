@@ -12,6 +12,7 @@
 #include "propulsion.h"
 #include "dragon.h"
 #include "waterballoon.h"
+#include "magnet.h"
 #include <stdio.h>
 
 using namespace std;
@@ -29,6 +30,7 @@ Propulsion propulsion;
 Bg bg_floor, bg_roof;
 Dragon dragon;
 Waterballoon waterballoon;
+Magnet magnet;
 #define number_of_coins 300
 #define length_of_game 1000
 Coins coins[number_of_coins];
@@ -91,6 +93,9 @@ void draw() {
     bg_floor.draw(VP);
     bg_roof.draw(VP);
     dragon.draw(VP);
+    if(magnet.is_active){
+        magnet.draw(VP);  
+    }
     waterballoon.draw(VP);
     for (int i = 0; i < number_of_coins; i++) {
         if(!coins[i].taken){
@@ -124,9 +129,9 @@ void tick_input(GLFWwindow *window) {
     int up = glfwGetKey(window, GLFW_KEY_SPACE);
     int shoot = glfwGetKey(window, GLFW_KEY_UP);
     if (left)
-        character.left(0);
+        character.left();
     if (right)
-        character.right(0);
+        character.right();
     if (up){
         character.up();
         propulsion.position.x = character.position.x;
@@ -158,6 +163,8 @@ void initGL(GLFWwindow *window, int width, int height) {
     bg_roof = Bg(0.0f, 13.6f, COLOR_GREEN);
     dragon = Dragon(600.0f, 0.0f, COLOR_BLACK);
     waterballoon = Waterballoon(-500.0f, 0.0f, COLOR_BLUE);
+    magnet = Magnet((rand()%(1000))/10.0 + 400, (rand()%55)/10.0 - 3.5, COLOR_BLUE, COLOR_FULLRED);
+    magnet.start = magnet.position.x;
     
     generate_coins();
     generate_enemy1();
@@ -232,8 +239,10 @@ int main(int argc, char **argv) {
                 shield[i].move();
             }
 
+            make_magnet_move();
             make_enemy3_move();
             waterballoon.move();
+            character.magnet_pull();
 
             box_character.x = character.position.x - 0.2f;
             box_character.y = character.position.y - 0.8f;
@@ -344,7 +353,7 @@ void generate_enemy3() {
 
 void generate_specialcoins() {
     for (int i = 0; i < number_of_specialcoins; i++) {
-        specialcoins[i] = Specialcoins ((rand()%(10*length_of_game - 150))/10.0 + 150, (rand()%60)/10.0 - 3, COLOR_YELLOW);
+        specialcoins[i] = Specialcoins ((rand()%(10*length_of_game - 150))/10.0 + 150, (rand()%60)/10.0 - 3, COLOR_GOLD);
     }
 }
 
@@ -360,6 +369,7 @@ void generate_shields() {
     }
 }
 
+// The boomerang comes
 void make_enemy3_move() {
     for (int i = 0; i < number_of_enemy3; i++) {
         if(!enemy3[i].flag && enemy3[i].position.x - character.position.x <= 7.5){
@@ -375,6 +385,25 @@ void make_enemy3_move() {
     }
 }
 
+// The Magnet appears
+void make_magnet_move() {
+    if(camera_x >= magnet.position.x && magnet.position.x - magnet.start <= 20){
+        if((character.position.y <= magnet.position.y + 2.5) && (character.position.y >= magnet.position.y + 0.5)){
+            character.a = 0.0003;
+        }
+        else{
+            character.a = 0;
+        }
+        magnet.appear();
+    }
+    if(magnet.position.x - magnet.start >= 20){
+        character.a = 0;
+        magnet.is_active = 0;
+        magnet.start += (rand()%1000)/10.0;
+        magnet.position.x = magnet.start;
+        magnet.position.y = (rand()%65)/10.0 - 3.5;
+    }
+}
 
 /* Collisions */
 // Collecting coins

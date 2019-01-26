@@ -89,6 +89,7 @@ void generate_extralives();
 void generate_shields();
 
 void make_enemy3_move();
+void make_magnet_move();
 
 void detect_collision_with_coins();
 void detect_collision_with_enemy1();
