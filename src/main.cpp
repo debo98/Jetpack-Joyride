@@ -14,6 +14,7 @@
 #include "dragonballz.h"
 #include "waterballoon.h"
 #include "magnet.h"
+#include "semicircularring.h"
 #include <stdio.h>
 
 using namespace std;
@@ -48,6 +49,8 @@ Specialcoins specialcoins[number_of_specialcoins];
 Extralives extralives[number_of_extralives];
 #define number_of_shields 4
 Shield shield[number_of_shields];
+#define number_of_semicircularring 40
+Semicircularring semicircularring[number_of_semicircularring];
 
 bounding_box_t box_character, box_object, box_object2;
 
@@ -125,6 +128,9 @@ void draw() {
     for (int i = 0; i < number_of_shields; i++) {
         shield[i].draw(VP);
     }
+    for (int i = 0; i < number_of_semicircularring; i++) {
+        semicircularring[i].draw(VP);
+    }
 }
 
 void tick_input(GLFWwindow *window) {
@@ -148,7 +154,6 @@ void tick_input(GLFWwindow *window) {
         propulsion.position.y = -500.0f;
     }
     if(shoot && (waterballoon.position.x <= -400.0f)){
-        printf("Waterballoon is at %f %f\n", waterballoon.position.x, waterballoon.position.y);
         waterballoon.position.x = character.position.x + 0.3f;
         waterballoon.position.y = character.position.y - 0.35f;
     }
@@ -180,6 +185,7 @@ void initGL(GLFWwindow *window, int width, int height) {
     generate_specialcoins();
     generate_extralives();
     generate_shields();
+    generate_semicircularring();
     
     // Create and compile our GLSL program from the shaders
     programID = LoadShaders("Sample_GL.vert", "Sample_GL.frag");
@@ -252,6 +258,9 @@ int main(int argc, char **argv) {
             dragonballz.move();
             waterballoon.move();
             character.magnet_pull();
+            if(character.on_ring){
+                move_on_ring();
+            }
 
             box_character.x = character.position.x - 0.2f;
             box_character.y = character.position.y - 0.8f;
@@ -269,6 +278,7 @@ int main(int argc, char **argv) {
             detect_collision_with_specialcoins();
             detect_collision_with_extralives();
             detect_collision_with_shields();
+            detect_collision_with_semicircularring();
             detect_collision_with_dragonballz();
             detect_collision_of_balloon_with_enemy1();
             detect_collision_of_balloon_with_enemy2();
@@ -358,7 +368,6 @@ void generate_enemy2() {
 void generate_enemy3() {
     for (int i = 0; i < number_of_enemy3; i++) {
         enemy3[i] = Enemy3 ((rand()%(10*length_of_game - 300))/10.0 + 300, (rand()%10)/10.0 + 2.0, COLOR_DARKORANGE);
-        // printf("%f %f\n", enemy3[i].position.x, enemy3[i].position.y);
     }
 }
 
@@ -377,6 +386,12 @@ void generate_extralives() {
 void generate_shields() {
     for (int i = 0; i < number_of_shields; i++) {
         shield[i] = Shield ((rand()%(10*length_of_game - 150))/10.0 + 150, (rand()%60)/10.0 - 3, COLOR_GREEN);
+    }
+}
+
+void generate_semicircularring() {
+    for (int i = 0; i < number_of_semicircularring; i++) {
+        semicircularring[i] = Semicircularring ((rand()%(10*length_of_game - 150))/10.0 + 150, (rand()%60)/10.0 - 3, COLOR_BLACK);
     }
 }
 
@@ -469,7 +484,7 @@ void detect_collision_with_enemy1() {
         box_object.width = 1.0f;
         box_object.height = 0.1f;
         if(detect_collision(box_character, box_object, enemy1[i].rotation * M_PI / 180.0f)){
-            if(!character.ispoweredup){
+            if(!character.ispoweredup && !character.on_ring){
                 lose_life();
             }
         }
@@ -484,7 +499,7 @@ void detect_collision_with_enemy2() {
         box_object.width = 10.0f;
         box_object.height = 0.3f;
         if(detect_collision(box_character, box_object, 0)){
-            if(!character.ispoweredup){
+            if(!character.ispoweredup && !character.on_ring){
                 lose_life();
             }
         }
@@ -499,7 +514,7 @@ void detect_collision_with_enemy3() {
         box_object.width = 0.5f;
         box_object.height = 1.0f;
         if(detect_collision(box_character, box_object, (enemy3[i].rotation + 45.0) * M_PI / 180.0f)){
-            if(!character.ispoweredup){
+            if(!character.ispoweredup && !character.on_ring){
                 lose_life();
             }
             return;
@@ -509,9 +524,37 @@ void detect_collision_with_enemy3() {
         box_object.width = 0.5f;
         box_object.height = 1.0f;
         if(detect_collision(box_character, box_object, (enemy3[i].rotation + 315.0) * M_PI / 180.0f)){
-            if(!character.ispoweredup){
+            if(!character.ispoweredup && !character.on_ring){
                 lose_life();
             }
+        }
+    }
+}
+
+// Distance formula
+float dist(float x1, float y1, float x2, float y2){
+    return sqrt((x2-x1)*(x2-x1) + (y2-y1)*(y2-y1));
+}
+
+// Stay on the ring till you exit
+void move_on_ring(){
+    if(character.position.x >= semicircularring[character.on_ring-1].position.x + 1.0){
+        character.on_ring = 0;
+    }
+    else{
+        character.position.y = 0.8 + semicircularring[character.on_ring-1].position.y - sqrt(1.0f - (semicircularring[character.on_ring-1].position.x-character.position.x)*(semicircularring[character.on_ring-1].position.x-character.position.x));
+    }
+}
+
+// Stay on semi circular ring
+void detect_collision_with_semicircularring() {
+    for (int i = 0; i < number_of_semicircularring; i++) {
+        if(character.position.y-0.8 <= semicircularring[i].position.y){
+            float DISTANCE = dist(semicircularring[i].position.x, semicircularring[i].position.y, character.position.x, character.position.y - 0.8);
+            if(DISTANCE < 1.05f && DISTANCE > 0.9f){
+                character.on_ring = i+1;
+            }
+            // DISTANCE = 0;
         }
     }
 }
@@ -523,7 +566,7 @@ void detect_collision_with_dragonballz() {
     box_object.width = 0.3f;
     box_object.height = 0.3f;
     if(detect_collision(box_character, box_object, 0)){
-        if(!character.ispoweredup){
+        if(!character.ispoweredup && !character.on_ring){
             dragonballz.position.x = -500.0f;
             dragonballz.position.y = -500.0f;
             lose_life();

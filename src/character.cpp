@@ -19,6 +19,7 @@ Character::Character(float x, float y, color_t color1, color_t color2, color_t c
     this->ispoweredup = 0;
     this->lives = 3;
     this->enemieskilled = 0;
+    this->on_ring = 0;
     this->a = 0;
     g = 0.003;
     
@@ -97,7 +98,7 @@ void Character::set_position(float x, float y) {
 }
 
 void Character::up() {
-    if(this->position.y <= 3.3){
+    if(!this->on_ring && this->position.y <= 3.3){
         speed_y = default_speed_y;
         this->position.y += speed_y;
         speed_y = 0;
@@ -105,14 +106,14 @@ void Character::up() {
 }
 
 void Character::down() {
-    if(this->position.y >= -3){
+    if(!this->on_ring && this->position.y >= -3){
         speed_y += g;
         this->position.y -= speed_y;
     }
 }
 
 void Character::left() {
-    if(this->position.x >= (camera_x - 3.7)){
+    if(!this->on_ring && this->position.x >= (camera_x - 3.7)){
         this->position.x -= this->speed_x;
     }
 }
