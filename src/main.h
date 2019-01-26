@@ -102,7 +102,7 @@ void detect_collision_with_specialcoins();
 void detect_collision_with_extralives();
 void detect_collision_with_shields();
 void detect_collision_of_balloon_with_enemy1();
-
+void detect_collision_of_balloon_with_enemy2();
 
 void lose_life();
 void game_over();

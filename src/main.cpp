@@ -271,6 +271,7 @@ int main(int argc, char **argv) {
             detect_collision_with_shields();
             detect_collision_with_dragonballz();
             detect_collision_of_balloon_with_enemy1();
+            detect_collision_of_balloon_with_enemy2();
 
             printf("Lives left : %d\n", character.lives);
             printf("Game Score : %d\n", character.score);
@@ -587,6 +588,27 @@ void detect_collision_of_balloon_with_enemy1() {
             character.enemieskilled++;
             enemy1[i].position.x = -500.0f;
             enemy1[i].position.y = -500.0f;
+            waterballoon.position.x = -500.0f;
+            waterballoon.position.y = -0.0f;
+        }
+    }
+}
+
+// Destroying enemy 2
+void detect_collision_of_balloon_with_enemy2() {
+    box_object2.x = waterballoon.position.x - 0.1f;
+    box_object2.y = waterballoon.position.y - 0.1f;
+    box_object2.width = 0.2f;
+    box_object2.height = 0.2f;
+    for (int i = 0; i < number_of_enemy2; i++) {
+        box_object.x = enemy2[i].position.x;
+        box_object.y = enemy2[i].position.y - 0.05f;
+        box_object.width = 10.0f;
+        box_object.height = 0.3f;
+        if(detect_collision(box_object2, box_object, 0)){
+            character.enemieskilled++;
+            enemy2[i].position.x = -500.0f;
+            enemy2[i].position.y = -500.0f;
             waterballoon.position.x = -500.0f;
             waterballoon.position.y = -0.0f;
         }
