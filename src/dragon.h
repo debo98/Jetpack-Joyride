@@ -10,8 +10,12 @@ class Dragon {
         Dragon(float x, float y, color_t color);
         glm::vec3 position;
         float rotation;
+        float start;
+        int visible;
+        int fire[20];
         void draw(glm::mat4 VP);
         void set_position(float x, float y);
+        void appear(float y);
 
     private:
         VAO *object_head;

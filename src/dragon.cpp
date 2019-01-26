@@ -5,6 +5,11 @@
 Dragon::Dragon(float x, float y, color_t color) {
     this->position = glm::vec3(x, y, 0);
     this->rotation = 0;
+    this->visible = 0;
+
+    for(int i=0; i<20; i++){
+        this->fire[i] = 1;
+    }
 
     int n = 100;
     GLfloat vertex_buffer_data_head[9*n];
@@ -72,4 +77,10 @@ void Dragon::draw(glm::mat4 VP) {
 
 void Dragon::set_position(float x, float y) {
     this->position = glm::vec3(x, y, 0);
+}
+
+void Dragon::appear(float y) {
+    this->visible = 1;
+    this->position.y = y + 0.3f;
+    this->position.x = camera_x + 3.0f;
 }

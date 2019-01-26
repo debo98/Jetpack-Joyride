@@ -11,6 +11,7 @@
 #include "shield.h"
 #include "propulsion.h"
 #include "dragon.h"
+#include "dragonballz.h"
 #include "waterballoon.h"
 #include "magnet.h"
 #include <stdio.h>
@@ -29,6 +30,7 @@ Character character;
 Propulsion propulsion;
 Bg bg_floor, bg_roof;
 Dragon dragon;
+Dragonballz dragonballz;
 Waterballoon waterballoon;
 Magnet magnet;
 #define number_of_coins 300
@@ -92,7 +94,10 @@ void draw() {
     propulsion.draw(VP);
     bg_floor.draw(VP);
     bg_roof.draw(VP);
-    dragon.draw(VP);
+    if(dragon.visible){
+        dragon.draw(VP);
+    }
+    dragonballz.draw(VP);
     if(magnet.is_active){
         magnet.draw(VP);  
     }
@@ -161,7 +166,9 @@ void initGL(GLFWwindow *window, int width, int height) {
     propulsion = Propulsion(-500.0f, -500.0f, COLOR_GOLD);
     bg_floor = Bg(0.0f, 0.0f, COLOR_GREEN);
     bg_roof = Bg(0.0f, 13.6f, COLOR_GREEN);
-    dragon = Dragon(600.0f, 0.0f, COLOR_BLACK);
+    dragon = Dragon((rand()%(1000))/10.0 + 500, 0.0f, COLOR_BLACK);
+    dragon.start = dragon.position.x;
+    dragonballz = Dragonballz(-500.0f, 0.0f, COLOR_ICEBLUE);
     waterballoon = Waterballoon(-500.0f, 0.0f, COLOR_BLUE);
     magnet = Magnet((rand()%(1000))/10.0 + 400, (rand()%55)/10.0 - 3.5, COLOR_BLUE, COLOR_FULLRED);
     magnet.start = magnet.position.x;
@@ -241,6 +248,8 @@ int main(int argc, char **argv) {
 
             make_magnet_move();
             make_enemy3_move();
+            make_dragon_move();
+            dragonballz.move();
             waterballoon.move();
             character.magnet_pull();
 
@@ -260,6 +269,7 @@ int main(int argc, char **argv) {
             detect_collision_with_specialcoins();
             detect_collision_with_extralives();
             detect_collision_with_shields();
+            detect_collision_with_dragonballz();
             detect_collision_of_balloon_with_enemy1();
 
             printf("Lives left : %d\n", character.lives);
@@ -347,13 +357,13 @@ void generate_enemy2() {
 void generate_enemy3() {
     for (int i = 0; i < number_of_enemy3; i++) {
         enemy3[i] = Enemy3 ((rand()%(10*length_of_game - 300))/10.0 + 300, (rand()%10)/10.0 + 2.0, COLOR_DARKORANGE);
-        printf("%f %f\n", enemy3[i].position.x, enemy3[i].position.y);
+        // printf("%f %f\n", enemy3[i].position.x, enemy3[i].position.y);
     }
 }
 
 void generate_specialcoins() {
     for (int i = 0; i < number_of_specialcoins; i++) {
-        specialcoins[i] = Specialcoins ((rand()%(10*length_of_game - 150))/10.0 + 150, (rand()%60)/10.0 - 3, COLOR_GOLD);
+        specialcoins[i] = Specialcoins ((rand()%(10*length_of_game - 150))/10.0 + 150, (rand()%60)/10.0 - 3, COLOR_ORANGE);
     }
 }
 
@@ -387,7 +397,7 @@ void make_enemy3_move() {
 
 // The Magnet appears
 void make_magnet_move() {
-    if(camera_x >= magnet.position.x && magnet.position.x - magnet.start <= 20){
+    if(camera_x >= magnet.position.x && magnet.position.x - magnet.start <= 20.0){
         if((character.position.y <= magnet.position.y + 2.5) && (character.position.y >= magnet.position.y + 0.5)){
             character.a = 0.0003;
         }
@@ -396,13 +406,38 @@ void make_magnet_move() {
         }
         magnet.appear();
     }
-    if(magnet.position.x - magnet.start >= 20){
+    if(magnet.position.x - magnet.start >= 20.0){
         character.a = 0;
         magnet.is_active = 0;
-        magnet.start += (rand()%1000)/10.0;
+        magnet.start += ((rand()%1000)/10.0 + 100.0);
         magnet.position.x = magnet.start;
         magnet.position.y = (rand()%65)/10.0 - 3.5;
     }
+}
+
+// The Dragon appears
+void make_dragon_move() {
+    if(camera_x + 3.0f >= dragon.position.x && dragon.position.x - dragon.start <= 20.0){
+        dragon.appear(character.position.y);
+        if(dragon.fire[(int)(dragon.position.x-dragon.start)]){
+            dragon.fire[(int)(dragon.position.x-dragon.start)] = 0;
+            dragon_spits_ice();
+        }
+    }
+    if(dragon.position.x - dragon.start >= 20.0){
+        dragon.visible = 0;
+        dragon.start += ((rand()%1000)/10.0 + 100.0);
+        dragon.position.x = dragon.start;
+        for(int i=0; i<20; i++){
+            dragon.fire[i] = 1;
+        }
+    }
+}
+
+// Generate ice ball
+void dragon_spits_ice() {
+    dragonballz.position.x = dragon.position.x - 1.4f;
+    dragonballz.position.y = dragon.position.y - 0.45f;
 }
 
 /* Collisions */
@@ -472,6 +507,21 @@ void detect_collision_with_enemy3() {
             if(!character.ispoweredup){
                 lose_life();
             }
+        }
+    }
+}
+
+// Collision with ice balls
+void detect_collision_with_dragonballz() {
+    box_object.x = dragonballz.position.x - 0.15f;
+    box_object.y = dragonballz.position.y - 0.15f;
+    box_object.width = 0.3f;
+    box_object.height = 0.3f;
+    if(detect_collision(box_character, box_object, 0)){
+        if(!character.ispoweredup){
+            dragonballz.position.x = -500.0f;
+            dragonballz.position.y = -500.0f;
+            lose_life();
         }
     }
 }
