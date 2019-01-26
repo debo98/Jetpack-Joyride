@@ -83,13 +83,17 @@ void reset_screen();
 void generate_coins();
 void generate_enemy1(); 
 void generate_enemy2();
+void generate_enemy3();
 void generate_specialcoins();
 void generate_extralives();
 void generate_shields();
 
+void make_enemy3_move();
+
 void detect_collision_with_coins();
 void detect_collision_with_enemy1();
 void detect_collision_with_enemy2();
+void detect_collision_with_enemy3();
 void detect_collision_with_specialcoins();
 void detect_collision_with_extralives();
 void detect_collision_with_shields();

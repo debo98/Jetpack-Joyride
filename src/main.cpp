@@ -5,6 +5,7 @@
 #include "bg.h"
 #include "enemy1.h"
 #include "enemy2.h"
+#include "enemy3.h"
 #include "specialcoins.h"
 #include "extralives.h"
 #include "shield.h"
@@ -35,6 +36,8 @@ Coins coins[number_of_coins];
 Enemy1 enemy1[number_of_enemy1];
 #define number_of_enemy2 20
 Enemy2 enemy2[number_of_enemy2];
+#define number_of_enemy3 6
+Enemy3 enemy3[number_of_enemy3];
 #define number_of_specialcoins 4
 Specialcoins specialcoins[number_of_specialcoins];
 #define number_of_extralives 4
@@ -100,6 +103,9 @@ void draw() {
     for (int i = 0; i < number_of_enemy2; i++) {
         enemy2[i].draw(VP);
     }
+    for (int i = 0; i < number_of_enemy3; i++) {
+        enemy3[i].draw(VP);
+    }
     for (int i = 0; i < number_of_specialcoins; i++) {
         specialcoins[i].draw(VP);
     }
@@ -150,12 +156,13 @@ void initGL(GLFWwindow *window, int width, int height) {
     propulsion = Propulsion(-500.0f, -500.0f, COLOR_GOLD);
     bg_floor = Bg(0.0f, 0.0f, COLOR_GREEN);
     bg_roof = Bg(0.0f, 13.6f, COLOR_GREEN);
-    dragon = Dragon(500.0f, 0.0f, COLOR_BLACK);
+    dragon = Dragon(600.0f, 0.0f, COLOR_BLACK);
     waterballoon = Waterballoon(-500.0f, 0.0f, COLOR_BLUE);
     
     generate_coins();
     generate_enemy1();
     generate_enemy2();
+    generate_enemy3();
     generate_specialcoins();
     generate_extralives();
     generate_shields();
@@ -212,6 +219,9 @@ int main(int argc, char **argv) {
             for (int i = 0; i < number_of_enemy2; i++) {
                 enemy2[i].move();
             }
+            for (int i = 0; i < number_of_enemy3; i++) {
+                enemy3[i].move();
+            }
             for (int i = 0; i < number_of_specialcoins; i++) {
                 specialcoins[i].move();
             }
@@ -222,6 +232,7 @@ int main(int argc, char **argv) {
                 shield[i].move();
             }
 
+            make_enemy3_move();
             waterballoon.move();
 
             box_character.x = character.position.x - 0.2f;
@@ -236,6 +247,7 @@ int main(int argc, char **argv) {
             detect_collision_with_coins();
             detect_collision_with_enemy1();
             detect_collision_with_enemy2();
+            detect_collision_with_enemy3();
             detect_collision_with_specialcoins();
             detect_collision_with_extralives();
             detect_collision_with_shields();
@@ -322,6 +334,14 @@ void generate_enemy2() {
     }
 }
 
+// Level 4
+void generate_enemy3() {
+    for (int i = 0; i < number_of_enemy3; i++) {
+        enemy3[i] = Enemy3 ((rand()%(10*length_of_game - 300))/10.0 + 300, (rand()%10)/10.0 + 2.0, COLOR_DARKORANGE);
+        printf("%f %f\n", enemy3[i].position.x, enemy3[i].position.y);
+    }
+}
+
 void generate_specialcoins() {
     for (int i = 0; i < number_of_specialcoins; i++) {
         specialcoins[i] = Specialcoins ((rand()%(10*length_of_game - 150))/10.0 + 150, (rand()%60)/10.0 - 3, COLOR_YELLOW);
@@ -337,6 +357,21 @@ void generate_extralives() {
 void generate_shields() {
     for (int i = 0; i < number_of_shields; i++) {
         shield[i] = Shield ((rand()%(10*length_of_game - 150))/10.0 + 150, (rand()%60)/10.0 - 3, COLOR_GREEN);
+    }
+}
+
+void make_enemy3_move() {
+    for (int i = 0; i < number_of_enemy3; i++) {
+        if(!enemy3[i].flag && enemy3[i].position.x - character.position.x <= 7.5){
+            enemy3[i].flag = 1;
+        }
+        if(enemy3[i].flag && enemy3[i].position.y <= 0){
+            enemy3[i].dir = 1;
+        }
+        if(enemy3[i].position.y <= -3){
+            enemy3[i].position.x = -500.0f;
+            enemy3[i].position.y = -500.0f;
+        }
     }
 }
 
@@ -380,6 +415,31 @@ void detect_collision_with_enemy2() {
         box_object.width = 10.0f;
         box_object.height = 0.3f;
         if(detect_collision(box_character, box_object, 0)){
+            if(!character.ispoweredup){
+                lose_life();
+            }
+        }
+    }
+}
+
+// Collision with enemy 3
+void detect_collision_with_enemy3() {
+    for (int i = 0; i < number_of_enemy3; i++) {
+        box_object.x = enemy3[i].position.x;
+        box_object.y = enemy3[i].position.y;
+        box_object.width = 0.5f;
+        box_object.height = 1.0f;
+        if(detect_collision(box_character, box_object, (enemy3[i].rotation + 45.0) * M_PI / 180.0f)){
+            if(!character.ispoweredup){
+                lose_life();
+            }
+            return;
+        }
+        box_object.x = enemy3[i].position.x;
+        box_object.y = enemy3[i].position.y;
+        box_object.width = 0.5f;
+        box_object.height = 1.0f;
+        if(detect_collision(box_character, box_object, (enemy3[i].rotation + 315.0) * M_PI / 180.0f)){
             if(!character.ispoweredup){
                 lose_life();
             }
