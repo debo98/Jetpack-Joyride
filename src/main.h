@@ -93,6 +93,7 @@ void detect_collision_with_enemy2();
 void detect_collision_with_specialcoins();
 void detect_collision_with_extralives();
 void detect_collision_with_shields();
+void detect_collision_of_balloon_with_enemy1();
 
 
 void lose_life();
@@ -103,11 +104,15 @@ extern const color_t COLOR_FULLRED;
 extern const color_t COLOR_RED;
 extern const color_t COLOR_HEARTRED;
 extern const color_t COLOR_GREEN;
+extern const color_t COLOR_ICEBLUE;
+extern const color_t COLOR_BLUE;
 extern const color_t COLOR_BLACK;
 extern const color_t COLOR_YELLOW;
 extern const color_t COLOR_ORANGE;
 extern const color_t COLOR_DARKORANGE;
 extern const color_t COLOR_GOLD;
+extern const color_t COLOR_SKIN;
+extern const color_t COLOR_JEANS;
 extern const color_t COLOR_BACKGROUND;
 
 #endif

@@ -5,7 +5,7 @@
 float camera_x;
 float default_speed_x = 0.1, default_speed_y = 0.03;
 
-Character::Character(float x, float y, color_t color1, color_t color2) {
+Character::Character(float x, float y, color_t color1, color_t color2, color_t color3, color_t color4) {
     this->position = glm::vec3(x, y, 0);
     this->rotation = 0;
     this->score = 0;
@@ -14,17 +14,36 @@ Character::Character(float x, float y, color_t color1, color_t color2) {
     this->specialcoins_collected = 0;
     this->ispoweredup = 0;
     this->lives = 3;
+    this->enemieskilled = 0;
     g = 0.003;
     
     // Our vertices. Three consecutive floats give a 3D vertex; Three consecutive vertices give a triangle.
     // A cube has 6 faces with 2 triangles each, so this makes 6*2=12 triangles, and 12*3 vertices
     GLfloat vertex_buffer_data_body[] = {
-        -0.2f, -0.8f, 0.0f,
+        -0.2f, -0.5f, 0.0f,
         -0.2f, -0.2f, 0.0f,
         0.2f, -0.2f, 0.0f,
-        -0.2f, -0.8f, 0.0f,
-        0.2f, -0.8f, 0.0f,  
+        -0.2f, -0.5f, 0.0f,
+        0.2f, -0.5f, 0.0f,  
         0.2f, -0.2f, 0.0f,
+    };
+
+    GLfloat vertex_buffer_data_leg1[] = {
+        -0.2f, -0.5f, 0.0f,
+        -0.2f, -0.8f, 0.0f,
+        -0.02f, -0.5f, 0.0f,
+        -0.2f, -0.8f, 0.0f,
+        -0.02f, -0.5f, 0.0f, 
+        -0.02f, -0.8f, 0.0f,
+    };
+
+    GLfloat vertex_buffer_data_leg2[] = {
+        0.2f, -0.5f, 0.0f,
+        0.2f, -0.8f, 0.0f,
+        0.02f, -0.5f, 0.0f,
+        0.2f, -0.8f, 0.0f,
+        0.02f, -0.5f, 0.0f, 
+        0.02f, -0.8f, 0.0f,
     };
 
     int n = 100;
@@ -42,9 +61,10 @@ Character::Character(float x, float y, color_t color1, color_t color2) {
     }
 
     this->object_body1 = create3DObject(GL_TRIANGLES, 2*3, vertex_buffer_data_body, color1, GL_FILL);
-    this->object_head1 = create3DObject(GL_TRIANGLES, n*3, vertex_buffer_data_head, color1, GL_FILL);
     this->object_body2 = create3DObject(GL_TRIANGLES, 2*3, vertex_buffer_data_body, color2, GL_FILL);
-    this->object_head2 = create3DObject(GL_TRIANGLES, n*3, vertex_buffer_data_head, color2, GL_FILL);
+    this->object_head = create3DObject(GL_TRIANGLES, n*3, vertex_buffer_data_head, color3, GL_FILL);
+    this->object_leg1 = create3DObject(GL_TRIANGLES, 2*3, vertex_buffer_data_leg1, color4, GL_FILL);
+    this->object_leg2 = create3DObject(GL_TRIANGLES, 2*3, vertex_buffer_data_leg2, color4, GL_FILL);
 }
 
 void Character::draw(glm::mat4 VP, int shield_on) {
@@ -56,13 +76,14 @@ void Character::draw(glm::mat4 VP, int shield_on) {
     Matrices.model *= (translate * rotate);
     glm::mat4 MVP = VP * Matrices.model;
     glUniformMatrix4fv(Matrices.MatrixID, 1, GL_FALSE, &MVP[0][0]);
+    draw3DObject(this->object_head);
+    draw3DObject(this->object_leg1);
+    draw3DObject(this->object_leg2);
     if(shield_on){
         draw3DObject(this->object_body2);
-        draw3DObject(this->object_head2);
     }
     else{
         draw3DObject(this->object_body1);
-        draw3DObject(this->object_head1);
     }
 }
 
@@ -109,5 +130,5 @@ void Character::right(int magnetdir) {
 }
 
 void Character::update_score() {
-    this->score = (10 * this->distance_travelled) + (5 * this->coins_collected) + (50 * this->specialcoins_collected);
+    this->score = (10 * this->distance_travelled) + (5 * this->coins_collected) + (10 * this->enemieskilled) + (50 * this->specialcoins_collected);
 }

@@ -9,6 +9,8 @@
 #include "extralives.h"
 #include "shield.h"
 #include "propulsion.h"
+#include "dragon.h"
+#include "waterballoon.h"
 #include <stdio.h>
 
 using namespace std;
@@ -24,6 +26,8 @@ GLFWwindow *window;
 Character character;
 Propulsion propulsion;
 Bg bg_floor, bg_roof;
+Dragon dragon;
+Waterballoon waterballoon;
 #define number_of_coins 300
 #define length_of_game 1000
 Coins coins[number_of_coins];
@@ -38,7 +42,7 @@ Extralives extralives[number_of_extralives];
 #define number_of_shields 4
 Shield shield[number_of_shields];
 
-bounding_box_t box_character, box_object;
+bounding_box_t box_character, box_object, box_object2;
 
 float screen_zoom = 1, screen_center_x = 0, screen_center_y = 0;
 float camera_rotation_angle = 0;
@@ -83,6 +87,8 @@ void draw() {
     propulsion.draw(VP);
     bg_floor.draw(VP);
     bg_roof.draw(VP);
+    dragon.draw(VP);
+    waterballoon.draw(VP);
     for (int i = 0; i < number_of_coins; i++) {
         if(!coins[i].taken){
             coins[i].draw(VP); 
@@ -110,6 +116,7 @@ void tick_input(GLFWwindow *window) {
     int left  = glfwGetKey(window, GLFW_KEY_LEFT);
     int right = glfwGetKey(window, GLFW_KEY_RIGHT);
     int up = glfwGetKey(window, GLFW_KEY_SPACE);
+    int shoot = glfwGetKey(window, GLFW_KEY_UP);
     if (left)
         character.left(0);
     if (right)
@@ -124,6 +131,11 @@ void tick_input(GLFWwindow *window) {
         propulsion.position.x = -500.0f;
         propulsion.position.y = -500.0f;
     }
+    if(shoot && (waterballoon.position.x <= -400.0f)){
+        printf("Waterballoon is at %f %f\n", waterballoon.position.x, waterballoon.position.y);
+        waterballoon.position.x = character.position.x + 0.3f;
+        waterballoon.position.y = character.position.y - 0.35f;
+    }
     reset_screen();
 }
 
@@ -134,10 +146,12 @@ void initGL(GLFWwindow *window, int width, int height) {
     // Create the models
 
     // Generate Barry Steakfries
-    character = Character(-3, -3, COLOR_RED, COLOR_FULLRED);
+    character = Character(-3.0f, -3.0f, COLOR_RED, COLOR_FULLRED, COLOR_SKIN, COLOR_JEANS);
     propulsion = Propulsion(-500.0f, -500.0f, COLOR_GOLD);
-    bg_floor = Bg(0, 0, COLOR_GREEN);
-    bg_roof = Bg(0, 13.6, COLOR_GREEN);
+    bg_floor = Bg(0.0f, 0.0f, COLOR_GREEN);
+    bg_roof = Bg(0.0f, 13.6f, COLOR_GREEN);
+    dragon = Dragon(500.0f, 0.0f, COLOR_BLACK);
+    waterballoon = Waterballoon(-500.0f, 0.0f, COLOR_BLUE);
     
     generate_coins();
     generate_enemy1();
@@ -208,6 +222,8 @@ int main(int argc, char **argv) {
                 shield[i].move();
             }
 
+            waterballoon.move();
+
             box_character.x = character.position.x - 0.2f;
             box_character.y = character.position.y - 0.8f;
             box_character.width = 0.4f;
@@ -223,9 +239,11 @@ int main(int argc, char **argv) {
             detect_collision_with_specialcoins();
             detect_collision_with_extralives();
             detect_collision_with_shields();
+            detect_collision_of_balloon_with_enemy1();
 
             printf("Lives left : %d\n", character.lives);
             printf("Game Score : %d\n", character.score);
+            printf("Level : %d\n", (1 + ((int)camera_x)/100));
 
         }
 
@@ -409,12 +427,33 @@ void detect_collision_with_shields() {
         if(detect_collision(box_character, box_object, 0)){
             powerdown_at = shield[i].position.x + 50.0f;
             character.ispoweredup = 1;
-            // character.color = COLOR_GOLD;
             shield[i].position.x = -500.0f;
             shield[i].position.y = -500.0f;
         }
     }
 }
+
+// Destroying enemy 1
+void detect_collision_of_balloon_with_enemy1() {
+    box_object2.x = waterballoon.position.x - 0.1f;
+    box_object2.y = waterballoon.position.y - 0.1f;
+    box_object2.width = 0.2f;
+    box_object2.height = 0.2f;
+    for (int i = 0; i < number_of_enemy1; i++) {
+        box_object.x = enemy1[i].position.x;
+        box_object.y = enemy1[i].position.y - 0.05f;
+        box_object.width = 1.0f;
+        box_object.height = 0.1f;
+        if(detect_collision(box_object2, box_object, enemy1[i].rotation * M_PI / 180.0f)){
+            character.enemieskilled++;
+            enemy1[i].position.x = -500.0f;
+            enemy1[i].position.y = -500.0f;
+            waterballoon.position.x = -500.0f;
+            waterballoon.position.y = -0.0f;
+        }
+    }
+}
+
 
 void lose_life(){
     if(character.lives){

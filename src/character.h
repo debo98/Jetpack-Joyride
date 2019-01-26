@@ -7,7 +7,7 @@
 class Character {
     public:
         Character() {}
-        Character(float x, float y, color_t color1, color_t color2);
+        Character(float x, float y, color_t color1, color_t color2, color_t color3, color_t color4);
         glm::vec3 position;
         float rotation;
         void draw(glm::mat4 VP, int shield_on);
@@ -25,13 +25,15 @@ class Character {
         int ispoweredup;
         int lives;
         int coins_collected;
+        int enemieskilled;
         int specialcoins_collected;
 
     private:
-        VAO *object_head1;
+        VAO *object_head;
         VAO *object_body1;
-        VAO *object_head2;
         VAO *object_body2;
+        VAO *object_leg1;
+        VAO *object_leg2;
 };
 
 #endif // CHARACTER_H
