@@ -27,7 +27,9 @@ class Character {
         float distance_travelled;
         int ispoweredup;
         int lives;
-        int coins_collected;
+        int yellow_coins_collected;
+        int black_coins_collected;
+        int green_coins_collected;
         int enemieskilled;
         int specialcoins_collected;
 

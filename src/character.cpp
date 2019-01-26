@@ -12,7 +12,9 @@ Character::Character(float x, float y, color_t color1, color_t color2, color_t c
     this->speed_due_to_magnet = 0;
     this->score = 0;
     this->distance_travelled = 0;
-    this->coins_collected = 0;
+    this->yellow_coins_collected = 0;
+    this->black_coins_collected = 0;
+    this->green_coins_collected = 0;
     this->specialcoins_collected = 0;
     this->ispoweredup = 0;
     this->lives = 3;
@@ -137,5 +139,5 @@ void Character::magnet_pull(){
 }
 
 void Character::update_score() {
-    this->score = (10 * this->distance_travelled) + (5 * this->coins_collected) + (10 * this->enemieskilled) + (50 * this->specialcoins_collected);
+    this->score = (10 * this->distance_travelled) + (1 * this->yellow_coins_collected) + (2 * this->black_coins_collected) + (5 * this->green_coins_collected) + (10 * this->enemieskilled) + (50 * this->specialcoins_collected);
 }

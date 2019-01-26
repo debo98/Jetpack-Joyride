@@ -336,7 +336,7 @@ void reset_screen() {
 // Level 1
 void generate_coins() {
     for (int i = 0; i < number_of_coins; i++) {
-        coins[i] = Coins ((rand()%(10*length_of_game))/10.0 + 4, (rand()%60)/10.0 - 3, COLOR_YELLOW);
+        coins[i] = Coins ((rand()%(10*length_of_game))/10.0 + 4, (rand()%60)/10.0 - 3, COLOR_YELLOW, COLOR_BLACK, COLOR_GREEN);
     }
 }
 
@@ -364,7 +364,7 @@ void generate_enemy3() {
 
 void generate_specialcoins() {
     for (int i = 0; i < number_of_specialcoins; i++) {
-        specialcoins[i] = Specialcoins ((rand()%(10*length_of_game - 150))/10.0 + 150, (rand()%60)/10.0 - 3, COLOR_ORANGE);
+        specialcoins[i] = Specialcoins ((rand()%(10*length_of_game - 150))/10.0 + 150, (rand()%60)/10.0 - 3, COLOR_YELLOW);
     }
 }
 
@@ -450,7 +450,11 @@ void detect_collision_with_coins() {
         box_object.width = 0.2f;
         box_object.height = 0.2f;
         if(detect_collision(box_character, box_object, 0)){
-            character.coins_collected++;
+            switch(coins[i].type){
+                case 0: character.yellow_coins_collected++; break;
+                case 1: character.black_coins_collected++; break;
+                case 2: character.green_coins_collected++; break;
+            }
             coins[i].position.x = -500.0f;
             coins[i].position.y = -500.0f;
         }
